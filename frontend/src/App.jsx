@@ -1,5 +1,6 @@
 import React , { useEffect, useState } from "react";
 import Cookies from "universal-cookie";
+import Swal from 'sweetalert2'
 
 
 const ItemList = () => {
@@ -35,7 +36,10 @@ const ItemList = () => {
       <ul>
         {/* Loop through the items array and generate JSX for each item */}
         {items.map(item => (
-          <li key={item.id}>{item.name}</li>
+          <li key={item.id}>Name :{item.name}
+          <br />
+          Price: {item.price}
+          </li>
         ))}
       </ul>
     </div>
@@ -61,6 +65,11 @@ class App extends React.Component {
   handleRegistration = (event) => {
     event.preventDefault();
     if (this.state.password !== this.state.confirmPassword) {
+        Swal.fire({
+          title: "Ooops!",
+          text: "Passwords do not match!",
+          icon: "error",
+        });
         this.setState({error: "Passwords do not match"});
         return;
     }
@@ -82,10 +91,20 @@ class App extends React.Component {
     .then(this.isResponseOk)
     .then((data) => {
         console.log(data);
+        Swal.fire({
+          title: "Succefully Signed in !",
+          text: "Go to dashboard!",
+          icon: "success"
+        });
         this.setState({isAuthenticated: true, username: "", password: "", confirmPassword: "", fullName: "", email: "", error: ""});
     })
     .catch((err) => {
         console.log(err);
+        Swal.fire({
+          title: "Error !",
+          text: "Username already exists or other error occurred.",
+          icon: "error"
+        });
         this.setState({error: "Username already exists or other error occurred."});
     });
 }
@@ -138,6 +157,7 @@ class App extends React.Component {
     })
     .then((res) => res.json())
     .then((data) => {
+      Swal.fire("You are logged in as: " + data.username);
       console.log("You are logged in as: " + data.username);
     })
     .catch((err) => {
@@ -177,26 +197,53 @@ class App extends React.Component {
     .then(this.isResponseOk)
     .then((data) => {
       console.log(data);
+      Swal.fire({
+        title: "Welcome!",
+        text: "Go to Dashboard.",
+        icon: "success"
+      });
       this.setState({isAuthenticated: true, username: "", password: "", error: ""});
     })
     .catch((err) => {
       console.log(err);
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Wrong username or password!",
+      });
       this.setState({error: "Wrong username or password."});
     });
   }
 
   //Logout Method
   logout = () => {
-    fetch("/api/logout", {
-      credentials: "same-origin",
-    })
-    .then(this.isResponseOk)
-    .then((data) => {
-      console.log(data);
-      this.setState({isAuthenticated: false});
-    })
-    .catch((err) => {
-      console.log(err);
+    Swal.fire({
+      title: "Are you sure?",
+      text: "We will miss you!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, logout!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: "Logged Out!",
+          text: "You logged out perfectly from your account.",
+          icon: "success"
+        });
+        fetch("/api/logout", {
+          credentials: "same-origin",
+        })
+        .then(this.isResponseOk)
+        .then((data) => {
+          console.log(data);
+          this.setState({isAuthenticated: false});
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      }
     });
   };
 
@@ -261,7 +308,7 @@ class App extends React.Component {
                 </form>
         </div>
       );
-    }
+    } else {
     return (
       <div className="container mt-3">
         <h1>React Cookie Auth</h1>
@@ -272,7 +319,7 @@ class App extends React.Component {
         <ItemList /> 
       </div>
       
-    )
+    )}
   }
 }
 
