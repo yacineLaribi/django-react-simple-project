@@ -101,7 +101,7 @@ class App extends React.Component {
     .catch((err) => {
         console.log(err);
         Swal.fire({
-          title: "Error !",
+          title: "Error!",
           text: "Username already exists or other error occurred.",
           icon: "error"
         });
@@ -124,6 +124,14 @@ class App extends React.Component {
     componentDidMount = () => {
       this.getSession();
     }
+    isResponseOk(response) {
+      if (response.status >= 200 && response.status <= 299) {
+        return response.json();
+      } else {
+        throw Error(response.statusText);
+      }
+    }
+  
 
 // Get Session Method
   getSession = () => {
